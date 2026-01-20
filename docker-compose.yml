@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  flask:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentiment_api_flask
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Optional: Mount for development (comment out for production)
+      # - ./app.py:/app/app.py
+      - model_cache:/root/.cache/huggingface
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: sentiment_api_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - flask
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  model_cache:
+    driver: local
