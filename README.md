@@ -190,9 +190,3 @@ For production deployment:
 - **Throughput**: ~10-20 requests/second (depending on hardware)
 - **Model size**: ~260MB
 - **Container memory**: ~2-3GB (including model)
-
----
-
-## Part 1: General Knowledge Answers
-
-Comprehensive written answers to all interview questions are available in [answers.md](answers.md). Use these as reference when recording your video demonstration.
